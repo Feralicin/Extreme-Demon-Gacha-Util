@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Card Maker · Extreme Demon Gacha</title>
+        <meta name="description" content="Make your own Extreme Demon Gacha card and preview it in 2D or 3D.">
+        <link rel="icon" href="extreme-demon.png" type="image/png">
+        <link rel="stylesheet" href="site.css">
+        <link rel="stylesheet" href="styles.css">
+        <script src="main.js" defer></script>
+    </head>
+    <body>
+        <a class="sr-only" href="#Main">Skip to content</a>
+        <div class="backdrop" aria-hidden="true"></div>
+        <header class="top" id="Header">
+            <a class="logo" href="index.html" aria-label="Extreme Demon Gacha card maker">
+                <img id="LogoIcon" src="extreme-demon.png" alt="" draggable="false">
+                <span>Extreme Demon <b>Gacha</b></span>
+            </a>
+            <nav class="main" aria-label="Main">
+                <a href="index.html" aria-current="page">Card Maker</a>
+            </nav>
+        </header>
+        <main id="Main" tabindex="-1">
+            <h1>Card Maker</h1>
+            <p class="muted">Build a custom card or something I don't really care</p>
+            <div class="MakerLayout">
+                <form class="panel MakerControls" id="CardForm" autocomplete="off" aria-label="Card settings">
+                    <h2>Card</h2>
+                    <div class="FieldGrid">
+                        <label class="field Wide">Name
+                            <input type="text" data-key="Name" maxlength="80" placeholder="Level or card name">
+                        </label>
+                        <label class="field">Rank
+                            <input type="text" data-key="Rank" maxlength="16" placeholder="1, 250, Unranked, ???">
+                        </label>
+                        <label class="field">Rarity
+                            <select data-key="Tier">
+                                <option value="Common">Common</option>
+                                <option value="Uncommon">Uncommon</option>
+                                <option value="Rare">Rare</option>
+                                <option value="Epic">Epic</option>
+                                <option value="Legendary">Legendary</option>
+                                <option value="Mythic">Mythic</option>
+                                <option value="Apex">Apex</option>
+                                <option value="Limited">Limited</option>
+                            </select>
+                        </label>
+                        <label class="check Wide"><input type="checkbox" data-key="ShowHash"> Put a # in front of the rank</label>
+                        <label class="field Wide">Badge text
+                            <input type="text" data-key="BadgeText" maxlength="18" placeholder="Leave empty to use the rarity name">
+                        </label>
+                    </div>
+
+                    <h2>Text lines</h2>
+                    <div class="FieldGrid">
+                        <label class="field Wide">First line
+                            <input type="text" data-key="Line1" maxlength="60" placeholder="Verified by ...">
+                        </label>
+                        <label class="field Wide">Second line
+                            <input type="text" data-key="Line2" maxlength="60" placeholder="Published by ...">
+                        </label>
+                    </div>
+
+                    <h2>Thumbnail</h2>
+                    <div class="FieldGrid">
+                        <label class="field Wide">Image link or YouTube link
+                            <input type="text" inputmode="url" data-key="ThumbUrl" placeholder="https://...">
+                        </label>
+                        <div class="row Wide">
+                            <button type="button" class="btn sm" id="UploadButton">Upload image</button>
+                            <button type="button" class="btn sm" id="ClearThumbButton">Remove image</button>
+                            <input type="file" id="ThumbFile" accept="image/*" hidden>
+                            <span class="muted small" id="ThumbNote" hidden>Using an uploaded image</span>
+                        </div>
+                        <div class="Wide ThumbEditor" id="ThumbEditor" hidden>
+                            <div class="ThumbFrame" id="ThumbFrame">
+                                <img id="ThumbEditImg" alt="" draggable="false" referrerpolicy="no-referrer">
+                                <div class="ThumbGuide Vertical" id="GuideV"></div>
+                                <div class="ThumbGuide Horizontal" id="GuideH"></div>
+                                <div class="ThumbBox" id="ThumbBox"></div>
+                            </div>
+                            <p class="muted small">The whole picture is shown. The bright box is what appears on the card. Drag to move the box, scroll to zoom, hold Shift to lock to one axis. It snaps to the center.</p>
+                            <div class="row">
+                                <label class="field ThumbZoomField">
+                                    <span>Zoom <output id="ZoomOutput">1.00x</output></span>
+                                    <input type="range" data-key="ThumbZoom" min="0.25" max="4" step="0.01">
+                                </label>
+                                <label class="field ThumbLockField">Axis lock
+                                    <select data-key="ThumbLock">
+                                        <option value="Free">Free</option>
+                                        <option value="Horizontal">Horizontal only</option>
+                                        <option value="Vertical">Vertical only</option>
+                                    </select>
+                                </label>
+                                <button type="button" class="btn sm" id="CenterButton">Center</button>
+                                <button type="button" class="btn sm" id="ResetPositionButton">Reset position</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Finish</h2>
+                    <div class="FieldGrid">
+                        <label class="field Wide">New card marker (pack results)
+                            <select data-key="NewMode">
+                                <option value="None">Off</option>
+                                <option value="New">New</option>
+                                <option value="NewHolo">New holo</option>
+                            </select>
+                        </label>
+                        <label class="check"><input type="checkbox" data-key="Holo"> Holographic</label>
+                        <label class="check"><input type="checkbox" data-key="Favorite"> Favorite star</label>
+                        <label class="field">Copies
+                            <input type="number" data-key="Copies" min="0" max="999" step="1" inputmode="numeric">
+                        </label>
+                        <div class="field">
+                            <label class="check"><input type="checkbox" data-key="UseColor"> Custom accent color</label>
+                            <input type="color" id="ColorInput" data-key="Color" aria-label="Accent color">
+                        </div>
+                    </div>
+
+                    <div class="row MakerActions">
+                        <button type="button" class="btn danger" id="ResetButton">Reset card</button>
+                    </div>
+                </form>
+
+                <section class="panel MakerPreview" aria-label="Preview">
+                    <div class="tabs" role="tablist" aria-label="Preview mode">
+                        <button type="button" class="btn sm" role="tab" data-mode="Card" aria-selected="true">Card</button>
+                        <button type="button" class="btn sm" role="tab" data-mode="3D" aria-selected="false">3D view</button>
+                    </div>
+                    <div class="PreviewStage" id="PreviewStage"></div>
+                    <label class="field PreviewSize">
+                        <span>Size <output id="SizeOutput">240px</output></span>
+                        <input type="range" data-key="Size" min="150" max="420" step="1">
+                    </label>
+                </section>
+            </div>
+        </main>
+        <footer class="site">
+            Unofficial fan-made project, not affiliated with AREDL, RobTop Games or Geometry Dash. Extreme Demon icon © RobTop Games.
+        </footer>
+    </body>
+</html>
