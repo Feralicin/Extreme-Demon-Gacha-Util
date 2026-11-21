@@ -8,7 +8,9 @@
         <link rel="icon" href="extreme-demon.png" type="image/png">
         <link rel="stylesheet" href="site.css">
         <link rel="stylesheet" href="styles.css">
+        <script src="audio.js" defer></script>
         <script src="main.js" defer></script>
+        <script src="packs.js" defer></script>
     </head>
     <body>
         <a class="sr-only" href="#Main">Skip to content</a>
@@ -19,10 +21,12 @@
                 <span>Extreme Demon <b>Gacha</b></span>
             </a>
             <nav class="main" aria-label="Main">
-                <a href="index.html" aria-current="page">Card Maker</a>
+                <a href="#maker" id="NavMaker" aria-current="page">Card Maker</a>
+                <a href="#packs" id="NavPacks">Pack Opening</a>
             </nav>
         </header>
         <main id="Main" tabindex="-1">
+            <div id="MakerView">
             <h1>Card Maker</h1>
             <p class="muted">Build a custom card or something I don't really care</p>
             <div class="MakerLayout">
@@ -137,7 +141,59 @@
                     </label>
                 </section>
             </div>
+            </div>
+
+            <div id="PacksView" hidden>
+                <h1>Pack Opening</h1>
+                <p class="muted">Gamble without having to wait 10 minutes.</p>
+                <section class="panel hero" aria-label="Pack opening">
+                    <div>
+                        <p class="muted small" style="margin:0">TEST COLLECTION</p>
+                        <div class="pack-count" id="PackStatOpened" aria-live="polite">0 <small>packs opened</small></div>
+                        <p class="muted small" id="PackStatLine">No cards yet.</p>
+                        <button type="button" class="btn sm danger" id="PackResetCollection">Reset test collection</button>
+                    </div>
+                    <div class="PackCenter">
+                        <button class="pack" id="HeroPack" aria-label="Open a pack" data-stack="0"></button>
+                        <div class="row PackButtons" id="PackPresetButtons"></div>
+                        <form class="row PackCustom" id="PackCustomForm">
+                            <input type="number" id="PackCustomInput" step="1" inputmode="numeric" aria-label="Custom number of packs">
+                            <button type="submit" class="btn open-btn">Open custom</button>
+                        </form>
+                        <p class="muted small PackLimit" id="PackLimit"></p>
+                    </div>
+                    <div class="PackSide">
+                        <p class="muted small" style="margin:0">SETTINGS</p>
+                        <label class="check"><input type="checkbox" data-pack="Tear"> Tear packs open by hand</label>
+                        <label class="check"><input type="checkbox" data-pack="Sound"> Sound effects</label>
+                        <label class="field volume"><span class="row" style="justify-content:space-between">Volume <output id="PackVolumeOut">60%</output></span><input type="range" data-pack="Volume" min="0" max="1" step="0.05"></label>
+                    </div>
+                </section>
+
+                <details class="panel section PackRates" id="PackRates">
+                    <summary><b>Drop rates and card pool</b></summary>
+                    <div class="RateGrid" id="RateGrid"></div>
+                    <div class="FieldGrid RateExtras">
+                        <label class="field">Holo chance per card (%)
+                            <input type="number" data-pack="HoloChance" min="0" max="100" step="0.1">
+                        </label>
+                        <label class="field">Card pool
+                            <select data-pack="Pool">
+                                <option value="Levels">Random sample levels</option>
+                                <option value="Custom">Only my custom card</option>
+                                <option value="Mixed">Random sample levels + my custom card</option>
+                            </select>
+                        </label>
+                        <label class="field" id="CustomWeightField" hidden>Custom card weight
+                            <input type="number" data-pack="CustomWeight" min="0" step="any" inputmode="decimal">
+                            <small class="muted" id="CustomWeightShare"></small>
+                        </label>
+                    </div>
+                    <div class="row" style="margin-top:14px"><button type="button" class="btn sm" id="PackRatesReset">Reset rates</button></div>
+                </details>
+            </div>
         </main>
+        <div class="toasts" id="Toasts" aria-live="polite"></div>
         <footer class="site">
             Unofficial fan-made project, not affiliated with AREDL, RobTop Games or Geometry Dash. Extreme Demon icon © RobTop Games.
         </footer>

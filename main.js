@@ -71,7 +71,7 @@ const ParseThumbUrl = (Url) => {
     return Match ? `https://i.ytimg.com/vi/${Match[1]}/mqdefault.jpg` : Url;
 };
 
-const ThumbTransform = () => `transform:translate(${State.ThumbX.toFixed(2)}%, ${State.ThumbY.toFixed(2)}%) scale(${State.ThumbZoom.toFixed(3)})`;
+const ThumbTransform = (Source = State) => `transform:translate(${(Source.ThumbX ?? 0).toFixed(2)}%, ${(Source.ThumbY ?? 0).toFixed(2)}%) scale(${(Source.ThumbZoom ?? 1).toFixed(3)})`;
 
 let ImageFit = 1;
 
@@ -100,56 +100,56 @@ const ResetThumbPosition = () => {
     State.ThumbY = 0;
 };
 
-const ResolveThumb = () => State.ThumbData || ParseThumbUrl(State.ThumbUrl.trim());
-const CardName = () => State.Name.trim() || 'Untitled';
+const ResolveThumb = (Source = State) => Source.ThumbData || ParseThumbUrl((Source.ThumbUrl || '').trim());
+const CardName = (Source = State) => String(Source.Name).trim() || 'Untitled';
 
-const RankText = () => {
-    const Value = State.Rank.trim();
+const RankText = (Source = State) => {
+    const Value = String(Source.Rank).trim();
     if (!Value) return '-';
-    return State.ShowHash ? '#' + Value : Value;
+    return Source.ShowHash ? '#' + Value : Value;
 };
 
-const NewTag = () =>
-    State.NewMode === 'None'
+const NewTag = (Source = State) =>
+    !Source.NewMode || Source.NewMode === 'None'
         ? ''
-        : `<span class="own-tag new pack-tag">${State.NewMode === 'NewHolo' ? '✦ NEW HOLO' : '✦ NEW'}</span>`;
+        : `<span class="own-tag new pack-tag">${Source.NewMode === 'NewHolo' ? '✦ NEW HOLO' : '✦ NEW'}</span>`;
 
-const BuildPreview = () => `${BuildCard()}${NewTag()}`;
+const BuildPreview = (Source = State) => `${BuildCard(Source)}${NewTag(Source)}`;
 
-const BuildCard = () => {
-    const Tier = State.Tier;
+const BuildCard = (Source = State) => {
+    const Tier = Source.Tier;
     const TierIdx = TierIndex(Tier);
-    const Name = CardName();
-    const Rank = RankText();
-    const Badge = (State.BadgeText.trim() || Tier).toUpperCase();
+    const Name = CardName(Source);
+    const Rank = RankText(Source);
+    const Badge = ((Source.BadgeText || '').trim() || Tier).toUpperCase();
     const RankStyle = Rank.length > 4 ? ` style="font-size:clamp(0.6rem, ${(44 / Rank.length).toFixed(2)}cqi, 1.6rem)"` : '';
-    const Copies = Math.max(0, Math.floor(Number(State.Copies)) || 0);
-    const Thumb = ResolveThumb();
+    const Copies = Math.max(0, Math.floor(Number(Source.Copies)) || 0);
+    const Thumb = ResolveThumb(Source);
     const Sparkles =
-        State.Holo && TierIdx >= 3
+        Source.Holo && TierIdx >= 3
             ? Array.from({ length: 2 + TierIdx }, (_, I) =>
                   `<span class="sparkle" style="left:${(I * 37) % 90 + 5}%;top:${(I * 53) % 85 + 5}%;animation-delay:${(I * 0.4).toFixed(1)}s"></span>`
               ).join('')
             : '';
-    const Label = `${Rank} ${Name}, ${Tier}${State.Holo ? ', holographic' : ''}${State.NewMode !== 'None' ? ', new' : ''}${Copies > 1 ? `, ${Copies} copies` : ''}`;
-    const Style = State.UseColor ? ` style="--tc:${Escape(State.Color)}"` : '';
+    const Label = `${Rank} ${Name}, ${Tier}${Source.Holo ? ', holographic' : ''}${(Source.NewMode && Source.NewMode !== 'None') ? ', new' : ''}${Copies > 1 ? `, ${Copies} copies` : ''}`;
+    const Style = Source.UseColor ? ` style="--tc:${Escape(Source.Color)}"` : '';
     const ThumbHtml = Thumb
-        ? `<img src="${Escape(Thumb)}" alt="" decoding="async" referrerpolicy="no-referrer" style="${ThumbTransform()}" data-ph="${Escape(Name)}">`
+        ? `<img src="${Escape(Thumb)}" alt="" decoding="async" referrerpolicy="no-referrer" style="${ThumbTransform(Source)}" data-ph="${Escape(Name)}">`
         : `<div class="ph">${Escape(Name)}</div>`;
     const CopiesHtml = Copies > 1 ? `<span class="copies-chip" title="${Copies} copies">×${Copies}</span>` : '';
 
-    return `<div class="card ${TierClass(Tier)} ${State.Holo ? 'holo' : ''} ${State.NewMode !== 'None' ? 'NewRing' : ''}" aria-label="${Escape(Label)}"${Style}>
+    return `<div class="card ${TierClass(Tier)} ${Source.Holo ? 'holo' : ''} ${(Source.NewMode && Source.NewMode !== 'None') ? 'NewRing' : ''}" aria-label="${Escape(Label)}"${Style}>
     <div class="card-inner">
       <div class="card-top"><span class="rank"${RankStyle}>${Escape(Rank)}</span><span class="tier-badge">${Escape(Badge)}</span></div>
       ${CopiesHtml}
       <div class="thumb">${ThumbHtml}</div>
       <div class="card-body">
         <div class="card-name" translate="no">${Escape(Name)}</div>
-        <div class="card-meta">${Escape(State.Line1.trim())}</div>
-        <div class="card-meta">${Escape(State.Line2.trim())}</div>
+        <div class="card-meta">${Escape((Source.Line1 || '').trim())}</div>
+        <div class="card-meta">${Escape((Source.Line2 || '').trim())}</div>
         <div class="card-foot">
-          <span>${State.Holo ? '<span class="holo-badge">✦ HOLO</span>' : ''}</span>
-          <span>${State.Favorite ? '<span class="fav" title="Favorite">★</span>' : ''}</span>
+          <span>${Source.Holo ? '<span class="holo-badge">✦ HOLO</span>' : ''}</span>
+          <span>${Source.Favorite ? '<span class="fav" title="Favorite">★</span>' : ''}</span>
         </div>
       </div>
     </div>
@@ -157,19 +157,19 @@ const BuildCard = () => {
   </div>`;
 };
 
-const BuildEdges = () =>
+const BuildEdges = (Source = State) =>
     Array.from({ length: EdgeCount }, (_, I) => {
         const Depth = ((I - (EdgeCount - 1) / 2) * 0.6).toFixed(2);
-        const Accent = State.UseColor ? `;--tc:${Escape(State.Color)}` : '';
-        return `<div class="inspect-edge ${TierClass(State.Tier)}" style="transform:translateZ(${Depth}px)${Accent}"></div>`;
+        const Accent = Source.UseColor ? `;--tc:${Escape(Source.Color)}` : '';
+        return `<div class="inspect-edge ${TierClass(Source.Tier)}" style="transform:translateZ(${Depth}px)${Accent}"></div>`;
     }).join('');
 
-const BuildFront = () => `${BuildCard()}<div class="inspect-shade"></div>`;
+const BuildFront = (Source = State) => `${BuildCard(Source)}<div class="inspect-shade"></div>`;
 
-const BuildViewer = () => `<div class="inspect" tabindex="0" aria-label="3D view of ${Escape(CardName())}. Drag or use the arrow keys to turn it, F to flip, R to reset.">
+const BuildViewer = (Source = State) => `<div class="inspect" tabindex="0" aria-label="3D view of ${Escape(CardName(Source))}. Drag or use the arrow keys to turn it, F to flip, R to reset.">
     <div class="inspect-stage"><div class="inspect-card">
-      ${BuildEdges()}
-      <div class="inspect-face front">${BuildFront()}</div>
+      ${BuildEdges(Source)}
+      <div class="inspect-face front">${BuildFront(Source)}</div>
       <div class="inspect-face back"><div class="card-back"></div><div class="glare"></div><div class="inspect-shade"></div></div>
     </div></div>
     <div class="row inspect-tools"><button type="button" class="btn sm" data-act="flip">Flip</button><button type="button" class="btn sm" data-act="reset">Reset</button><span class="muted small">Drag to spin</span></div></div>`;
@@ -595,5 +595,32 @@ Stage.addEventListener('pointerout', (Ev) => {
     }
 });
 
-BuildStage();
+const MakerView = Query('#MakerView');
+const PacksView = Query('#PacksView');
+
+const ShowView = (Name) => {
+    const OnPacks = Name === 'packs';
+    MakerView.hidden = OnPacks;
+    PacksView.hidden = !OnPacks;
+    Query('#NavMaker').toggleAttribute('aria-current', !OnPacks);
+    Query('#NavPacks').toggleAttribute('aria-current', OnPacks);
+    if (!OnPacks) Query('#NavMaker').setAttribute('aria-current', 'page');
+    if (OnPacks) Query('#NavPacks').setAttribute('aria-current', 'page');
+    document.title = `${OnPacks ? 'Pack Opening' : 'Card Maker'} · Extreme Demon Gacha`;
+    if (OnPacks) {
+        Viewer = null;
+        Stage.innerHTML = '';
+    } else {
+        BuildStage();
+        Sync();
+    }
+    window.scrollTo(0, 0);
+    document.dispatchEvent(new CustomEvent('viewchange', { detail: Name }));
+};
+
+const ViewFromHash = () => (location.hash === '#packs' ? 'packs' : 'maker');
+
+window.addEventListener('hashchange', () => ShowView(ViewFromHash()));
+
 Fill();
+ShowView(ViewFromHash());
